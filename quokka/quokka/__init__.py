@@ -1,16 +1,31 @@
 from xml.etree.ElementInclude import default_loader
 
 from flask import Flask
-import yaml
 
 app = Flask(__name__)
-def import_devices():
-    with open("quokka/data/devices.yaml") as devices_file:
-        devices = yaml.safe_load(devices_file.read())
-        return devices
 
-@app.route("/device/")
-def devices():
-    devices = import_devices()
+import quokka.views.ui_views
 
-    return {"devices":devices}
+# from flask_sqlalchemy import SQLAlchemy
+#
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# db = SQLAlchemy(app)
+#
+# class Device(db.Model):
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.Text, unique = True, nullable=False)
+#     ip_address = db.Column(db.Text)
+#     vendor = db.Column(db.Text)
+#     os = db.Column(db.Text)
+#     hostname = db.Column(db.Text)
+#
+# db.create_all()
+#
+# from quokka.controller.util import import_devices
+# for device in import_devices():
+#     device_obj = Device(**device)
+#     db.session.add(device_obj)
+#
+# db.session.commit()
