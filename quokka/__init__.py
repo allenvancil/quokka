@@ -1,16 +1,31 @@
+from xml.etree.ElementInclude import default_loader
+
 from flask import Flask
 
 app = Flask(__name__)
 
-@app.route("/device/")
-def device():
-    device = {
-        "name" : "sbx-n9kv-ao",
-        "vendor" : "cisco",
-        "model" : "Nexus9000 C9300v Chassis",
-        "os" : "nxos",
-        "version" : "9.3(3)",
-        "ip" : "10.1.1.1",
-    }
+import quokka.views.ui_views
 
-    return device
+from flask_sqlalchemy import SQLAlchemy
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
+
+class Device(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, unique = True, nullable=False)
+    ip_address = db.Column(db.Text)
+    vendor = db.Column(db.Text)
+    os = db.Column(db.Text)
+    hostname = db.Column(db.Text)
+
+db.create_all()
+
+from quokka.controller.util import import_devices
+for device in import_devices():
+    device_obj = Device(**device)
+    db.session.add(device_obj)
+
+db.session.commit()
