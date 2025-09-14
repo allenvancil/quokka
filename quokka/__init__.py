@@ -1,18 +1,18 @@
 from xml.etree.ElementInclude import default_loader
 
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-import quokka.views.ui_views
 
-from flask_sqlalchemy import SQLAlchemy
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Device(db.Model):
+##  creates data column in anticipation of data to enter
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, unique = True, nullable=False)
@@ -21,11 +21,13 @@ class Device(db.Model):
     os = db.Column(db.Text)
     hostname = db.Column(db.Text)
 
-db.create_all()
-
+import quokka.views.ui_views
 from quokka.controller.util import import_devices
-for device in import_devices():
-    device_obj = Device(**device)
-    db.session.add(device_obj)
 
-db.session.commit()
+with app.app_context():
+    db.create_all()
+
+    for device in import_devices():
+        device_obj = Device(**device)
+        db.session.add(device_obj)
+    db.session.commit()
